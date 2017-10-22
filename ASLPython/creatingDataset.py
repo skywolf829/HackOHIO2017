@@ -4,8 +4,8 @@ import numpy as np
 
 cam=int(raw_input("Enter Camera Index : "))
 cap=cv2.VideoCapture(cam)
-i=16
-j=201
+i=1
+j=1
 name=""
 
 def nothing(x) :
@@ -36,11 +36,12 @@ while(cap.isOpened()):
 	# Cr_max = cv2.getTrackbarPos('Cr_max','trackbar')
 	# Cb_min = cv2.getTrackbarPos('Cb_min','trackbar')
 	# Cb_max = cv2.getTrackbarPos('Cb_max','trackbar')
-	_,img=cap.read()
-	cv2.rectangle(img,(900,100),(1300,500),(255,0,0),3)
-	img1=img[100:500,900:1300]
+	_,flip=cap.read()
+	img = cv2.flip(flip,1)
+	cv2.rectangle(img,(800,0),(1200,400),(255,0,0),3) # bounding box which captures ASL sign to be detected by the system
+	img1=img[0:400,800:1200]
 	img_ycrcb = cv2.cvtColor(img1, cv2.COLOR_BGR2YCR_CB)
-	blur = cv2.GaussianBlur(img_ycrcb,(11,11),0)
+	blur = cv2.GaussianBlur(img_ycrcb,(7,7),0)
 	# skin_ycrcb_min = np.array((Y_min,Cr_min,Cb_min))
 	# skin_ycrcb_max = np.array((Y_max,Cr_max,Cb_max))
 
@@ -50,9 +51,9 @@ while(cap.isOpened()):
 	mask = cv2.inRange(blur, skin_ycrcb_min, skin_ycrcb_max)
 	#gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 	#ret,mask = cv2.threshold(gray.copy(),20,255,cv2.THRESH_BINARY)
-	contours,hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	im3,contours,hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	cnt=getMaxContour(contours,4000)
-	if cnt!=None:
+	if cnt is not None:
 		x,y,w,h = cv2.boundingRect(cnt)
 		imgT=img1[y:y+h,x:x+w]
 		imgT=cv2.bitwise_and(imgT,imgT,mask=mask[y:y+h,x:x+w])
@@ -65,14 +66,18 @@ while(cap.isOpened()):
 		break
 	if k == 13:
 		name=str(unichr(i+64))+"_"+str(j)+".jpg"
-		cv2.imwrite(name,imgT)
-		if(j<400):
+		print name
+		cv2.imwrite("Dataset/"+name,imgT)
+		if(j<200):
 			j+=1
 		else:
 			while(0xFF & cv2.waitKey(0)!=ord('n')):
-				j=201
-			j=201
-			i+=1
+				j=1
+			j=1
+			if i is 9 or i is 16 or i is 25:
+				i = i + 2
+			else:
+				i+=1
 		
 
 cap.release()        

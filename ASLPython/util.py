@@ -23,5 +23,7 @@ def getGestureImg(cnt,img,th1,model):
     imgT=cv2.resize(imgT,(200,200))
     imgTG=cv2.cvtColor(imgT,cv2.COLOR_BGR2GRAY)
     resp=st.predict(model,imgTG)
-    img=cv2.imread('TrainData/'+unichr(int(resp[0])+64)+'_2.jpg')
+    if resp[0] == 10 or resp[0] == 17 or resp[0] == 26:
+        resp[0] += 1
+    img=cv2.imread('Dataset/'+unichr(int(resp[0])+64)+'_2.jpg')
     return img,unichr(int(resp[0])+64)
