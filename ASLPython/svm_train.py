@@ -71,26 +71,26 @@ def hog_single(img):
     return np.float32(samples)
 def trainSVM(num):
     imgs=[]
+    labels=[]
     cont = 0
     for i in range(65,num+65):
         if i == 74 or i == 81 or i == 90:
             cont += 1
             continue
         for j in range(1,401):
-            #print 'Class '+unichr(i)+' is being loaded '
-            print 'TrainData/'+unichr(i)+'_'+str(j)+'.jpg'
+            print 'Class '+unichr(i)+' is being loaded '
+            labels.append(i)
             imgs.append(cv2.imread('Dataset/'+unichr(i)+'_'+str(j)+'.jpg',0))  # all images saved in a list
-    labels = np.repeat(np.arange(1,num+1-cont), 400) # label for each corresponding image saved above
+    #labels = np.repeat(np.arange(1,num+1-cont), 400) # label for each corresponding image saved above
     samples=preprocess_hog(imgs)                # images sent for pre processeing using hog which returns features for the images
     print('SVM is building wait some time ...')
     print len(labels)
     print len(samples)
     model = SVM(C=2.67, gamma=5.383)
-    model.train(samples, labels)  # features trained against the labels using svm
+    model.train(samples, np.asarray(labels))  # features trained against the labels using svm
     return model
 
 def predict(model,img):
     samples=hog_single(img)
     resp=model.predict(samples)
     return resp
-
